@@ -23,14 +23,32 @@ def euclid_gcd_with_steps(a, b):
     return r_list
 
 
-def euclid_extended_algorithm(a, b):
-    return_list = []
-    if a == 0:
-        return b, 0, 1
-    gcd, temp_y, temp_x = euclid_extended_algorithm(b % a, a)
-    x = temp_x - (b // a) * temp_y
-    y = temp_y
-    return gcd, x, y
+def euclid_extended_algorithm(x, n):
+    """
+    gcd(x, n)
+    sx + tn = 1
+    sx - 1 = -tn
+    if gcd = 1, s % n is multiplicative inverse of x if positive.
+    if negative, add t to n to get multiplicative inverse.
+    :param x: x
+    :param n: n
+    :return:
+    """
+    if x == 0:
+        return n, 0, 1
+    gcd, temp_n, temp_s = euclid_extended_algorithm(n % x, x)
+    s = temp_s - (n // x) * temp_n
+    t = temp_n
+    return gcd, s, t
+
+
+def multiplicative_inverse(s, n):
+    multi_inv = 0
+    if s < 0:
+        multi_inv = (s % n)
+    else:
+        multi_inv = (s % n)
+    return multi_inv
 
 
 def menu():
@@ -64,11 +82,36 @@ def gcd_io():
 
 def euclid_extended_algorithm_io():
     print('')
-    first = int(input('First number: '))
-    second = int(input('Second number: '))
-    ee = euclid_extended_algorithm(first, second)
-    print(f'gcd: {ee}')
+    x = int(input('First number (x): '))
+    n = int(input('Second number (n): '))
+    gcd, s, t = euclid_extended_algorithm(x, n)
+    print('sx + tn = 1')
+    print('sx - 1 = -tn')
+    print(f'gcd: {gcd}')
+    print(f's: {s}')
+    print(f't: {t}')
+    multi_inv = multiplicative_inverse(s, n)
+    print(f'Multiplicative inverse of x: {multi_inv}')
     input('*** press enter to continue ***')
+
+
+def rsa_keys():
+    p = int(input('Enter p: '))
+    q = int(input('Enter q: '))
+    n = p * q
+    phi = (p - 1) * (q - 1)
+    e = int(input('Enter e: '))
+    # check that e and phi are relatively prime
+    if euclid_gcd(e, phi) == 1:
+        gcd, s, t = euclid_extended_algorithm(e, phi)
+        print(f'Public Key: N = {p * q}, e = {e}')
+        print(f'Private Key: {s}')
+        m = int(input('Enter message number: '))
+        c = (m ** e) % n
+        print(f'Encrypted message: {c}')
+        d = (c ** s) % n
+        print(f'Decrypted message: {d}')
+        input('*** press enter to continue ***')
 
 
 def select_task():
@@ -79,6 +122,8 @@ def select_task():
         gcd_steps_io()
     if choice == 'ee':
         euclid_extended_algorithm_io()
+    if choice == 'rsa':
+        rsa_keys()
     if choice == 'e':
         return 'e'
 
